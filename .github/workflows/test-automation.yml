@@ -52,6 +52,9 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -json > tfplan.json
 
+      - name: Debug
+        run: cat tfplan.json
+
       - name: Terraform fmt
         run: terraform fmt -recursive
 
