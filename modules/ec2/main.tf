@@ -9,12 +9,13 @@ resource "aws_instance" "sample_instance" {
   
 user_data = <<-EOF
  #!/bin/bash
- sudo apt-get update -y
- sudo apt-get install -y docker.io nginx
- sudo systemctl start docker
- sudo systemctl enable docker
- sudo systemctl start nginx
- sudo systemctl enable nginx
+ apt-get update -y
+              apt-get install -y docker.io
+              systemctl start docker
+              systemctl enable docker
+
+              # Run Nginx container
+              docker run -d -p 80:80 nginx
  EOF
 security_groups = [aws_security_group.my-sg.name]
   key_name = "aws-login" # Replace with your key pair name
