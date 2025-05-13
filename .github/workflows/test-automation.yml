@@ -74,10 +74,10 @@ jobs:
            # opa run -s first.rego
            conftest test tfplan.json --policy policies/first.rego
 
-      - name: Terraform Apply or Destroy
-        run: |
-          if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
-            terraform destroy -auto-approve
-          else
-            terraform apply -auto-approve
-          fi
+      # - name: Terraform Apply or Destroy
+      #   run: |
+      #     if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
+      #       terraform destroy -auto-approve
+      #     else
+      #       terraform apply -auto-approve
+      #     fi
