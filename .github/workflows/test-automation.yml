@@ -50,7 +50,9 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Plan
-        run: terraform plan -json -out=tfplan.json
+        run: |
+          terraform plan -out=tfplan.binary
+          terraform show -json tfplan.binary >tfplan.json
 
       - name: Terraform fmt
         run: terraform fmt -recursive
