@@ -1,16 +1,15 @@
 name: GitHub Best Practises
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       action:
         description: 'Terraform action to perform (apply or destroy)'
         required: true
         default: 'apply'
-
-env:
-  AWS_REGION: us-east-1
-  AWS_ACCOUNT_ID: 273354635930
 
 jobs:
   terraform-deploy:
@@ -32,14 +31,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
-
-      - name: Render terraform docs and push changes back to PR
-        uses: terraform-docs/gh-actions@main
-        with:
-          working-dir: ./modules
-          output-file: README.md
-          output-method: inject
-          git-push: "true"
 
       - name: Terraform Init
         run: terraform init
@@ -71,6 +62,32 @@ jobs:
 
       - name: Run Checkov with soft fail
         run: checkov --directory . --soft-fail
+
+      - name: Generate Terraform Docs (README.md)
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        uses: terraform-docs/gh-actions@v1.3.0
+        with:
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          config-file: .terraform-docs.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Post Terraform Docs as PR Comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2.9.0
+        with:
+          working-dir: .
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          header: "Terraform Documentation"
+          path: ./README.md
 
       - name: Install Conftest
         run: |
